@@ -40,7 +40,7 @@ class GameInstanceManager(private val gameType: GameType, private val playerMana
             unit.modifier().fillHeight(0, 1, Block.AIR)
         }
 
-        val gameInstance = GameInstance(instanceContainer, gameType, playerManager = this.playerManager, redis = this.redis)
+        val gameInstance = GameInstance(instanceContainer, gameType, playerManager = this.playerManager, redis = this.redis, requiredPlayers = 8)
 
         gameInstances.add(gameInstance)
         gameInstanceMap[gameInstance.instanceContainer] = gameInstance
