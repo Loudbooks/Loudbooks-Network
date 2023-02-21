@@ -26,6 +26,16 @@ class LoudsGame : Extension() {
         val survivalGamesNode: EventNode<Event> = EventNode.all("survival-games")
 
         val redis = Redis()
+
+        val playerManager = PlayerManager()
+        val gameInstanceManager = GameInstanceManager(GameType.SURVIVAL, playerManager, redis)
+
+        gameNode.addListener(JoinListener(redis, playerManager, gameInstanceManager))
+        gameNode.addListener(LeaveListener(playerManager, gameInstanceManager))
+
+        for (i in 0..2){
+            gameInstanceManager.createInstance()
+        }
     }
 
     override fun terminate() {

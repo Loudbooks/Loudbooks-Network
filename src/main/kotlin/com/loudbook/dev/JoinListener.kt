@@ -58,6 +58,10 @@ class JoinListener(private val redis: Redis, private val playerManager: PlayerMa
             gameInstance.countdown.run()
         }
 
+        if (gameInstance.maxPlayers - gameInstance.players.size == 3) {
+            gameInstanceManager.createInstance()
+        }
+
         return EventListener.Result.SUCCESS
     }
 }

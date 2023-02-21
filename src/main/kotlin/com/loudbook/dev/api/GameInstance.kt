@@ -17,7 +17,6 @@ class GameInstance(val instanceContainer: InstanceContainer,
                    private val playerManager: PlayerManager,
                    private val redis: Redis) {
     val id: UUID = UUID.randomUUID()
-    var ready = false
     val teams: MutableList<Team> = ArrayList()
     val maxPlayers: Int = 8
     val teamSize: Int = 1
@@ -42,7 +41,6 @@ class GameInstance(val instanceContainer: InstanceContainer,
             }
 
             schematic.build(this.instanceContainer, Pos(0.0, 0.0, 0.0)).thenRun {
-                this.ready = true
                 println("Loaded map ${map!!.mapPath} for game type ${gameType.name.lowercase()}")
                 redis.pushInstanceInfo(this)
             }
