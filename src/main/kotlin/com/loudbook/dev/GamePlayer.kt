@@ -3,11 +3,12 @@ package com.loudbook.dev
 import com.loudbook.dev.api.GameInstance
 import com.loudbook.dev.api.Team
 import net.kyori.adventure.text.Component
-import net.minestom.server.color.Color
+import net.minestom.server.MinecraftServer
+import net.minestom.server.crypto.ChatSession
+import net.minestom.server.entity.GameMode
 import net.minestom.server.entity.Player
-import net.minestom.server.network.packet.server.play.PlayerInfoPacket
-import net.minestom.server.network.packet.server.play.PlayerInfoPacket.AddPlayer
-import java.util.List
+import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket
+import net.minestom.server.network.packet.server.play.PlayerInfoUpdatePacket
 
 @Suppress("UnstableApiUsage")
 class GamePlayer(val player: Player) {
@@ -23,9 +24,8 @@ class GamePlayer(val player: Player) {
     fun hideFromServer() {
         player.updateViewableRule { viewer ->
             if (viewer.instance != this.player.instance) {
-                val removePlayer = PlayerInfoPacket.RemovePlayer(player.uuid)
-                val packet = PlayerInfoPacket(PlayerInfoPacket.Action.REMOVE_PLAYER, removePlayer)
-                viewer.sendPacket(packet)
+                val removePlayer = PlayerInfoRemovePacket(player.uuid)
+                viewer.sendPacket(removePlayer)
                 false
             } else {
                 true
@@ -35,9 +35,8 @@ class GamePlayer(val player: Player) {
 
     fun hide() {
         this.player.updateViewableRule { viewer ->
-            val removePlayer = PlayerInfoPacket.RemovePlayer(player.uuid)
-            val packet = PlayerInfoPacket(PlayerInfoPacket.Action.REMOVE_PLAYER, removePlayer)
-            viewer.sendPacket(packet)
+            val removePlayer = PlayerInfoRemovePacket(player.uuid)
+            viewer.sendPacket(removePlayer)
             false
         }
         this.isHidden = true
@@ -46,20 +45,20 @@ class GamePlayer(val player: Player) {
     fun show(username: String) {
         player.updateViewableRule { viewer: Player ->
             val prop =
-                if (player.skin != null) listOf(
-                    AddPlayer.Property(
-                        "textures", player.skin!!
-                            .textures(), player.skin!!.signature()
-                    )
-                ) else listOf()
-            val info = PlayerInfoPacket(
-                PlayerInfoPacket.Action.ADD_PLAYER,
-                AddPlayer(
+                PlayerInfoUpdatePacket.Property(
+                    "textures", player.skin!!
+                        .textures(), player.skin!!.signature()
+                )
+            val propList = listOf(prop)
+            val info = PlayerInfoUpdatePacket(
+                PlayerInfoUpdatePacket.Action.ADD_PLAYER,
+                PlayerInfoUpdatePacket.Entry(
                     player.uuid,
                     player.username,
-                    prop,
-                    player.gameMode,
+                    propList,
+                    true,
                     player.latency,
+                    GameMode.SURVIVAL,
                     Component.text(username),
                     null
                 )
