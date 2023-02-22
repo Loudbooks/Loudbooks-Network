@@ -19,13 +19,14 @@ import net.minestom.server.world.DimensionType
 
 
 class LoudsGame : Extension() {
+    lateinit var redis: Redis
     override fun initialize() {
         MinecraftServer.setBrandName("Loudbook's Minigames")
 
         val gameNode: EventNode<Event> = EventNode.all("game")
         val survivalGamesNode: EventNode<Event> = EventNode.all("survival-games")
 
-        val redis = Redis()
+        this.redis = Redis()
 
         val playerManager = PlayerManager()
         val gameInstanceManager = GameInstanceManager(GameType.SURVIVAL, playerManager, redis)
@@ -36,9 +37,11 @@ class LoudsGame : Extension() {
         for (i in 0..2){
             gameInstanceManager.createInstance()
         }
+
+
     }
 
     override fun terminate() {
-
+        redis.client.shutdown()
     }
 }

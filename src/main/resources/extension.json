@@ -1,0 +1,5 @@
+{
+  "entrypoint": "com.loudbook.dev.LoudsGame",
+  "name": "LoudsGame",
+  "version": "1.0.0"
+}

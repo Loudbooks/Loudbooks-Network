@@ -8,7 +8,7 @@ import java.io.FileNotFoundException
 import java.io.FileReader
 import java.util.*
 
-class Map(val mapPath: String, mapName: String, private val gameInstance: GameInstance) {
+class Map(val mapPath: String, mapName: String, gameInstance: GameInstance) {
     val spawnPoints: MutableMap<Team, Pos> = HashMap()
     private var maxPlayers: Int = 8
     private var playerPerTeam: Int = 1

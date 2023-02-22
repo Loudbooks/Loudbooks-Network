@@ -4,27 +4,27 @@ import net.minestom.server.entity.Player
 import java.util.*
 import kotlin.collections.ArrayList
 
-class Party(private val owner: GamePlayer, private val members: MutableList<GamePlayer> = ArrayList()) {
-    val id = owner.player.uuid
+class Party(private val owner: Player, private val members: MutableList<Player> = ArrayList()) {
+    val id = owner.uuid
 
-    fun addMember(player: GamePlayer) {
+    fun addMember(player: Player) {
         if (members.contains(player)) return
         members.add(player)
     }
 
-    fun removeMember(player: GamePlayer) {
+    fun removeMember(player: Player) {
         members.remove(player)
     }
 
-    fun isMember(player: GamePlayer): Boolean {
+    fun isMember(player: Player): Boolean {
         return members.contains(player)
     }
 
-    fun isOwner(player: GamePlayer): Boolean {
+    fun isOwner(player: Player): Boolean {
         return owner == player
     }
 
-    fun getMembers(): List<GamePlayer> {
+    fun getMembers(): List<Player> {
         return members
     }
 

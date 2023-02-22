@@ -15,7 +15,7 @@ class Redis {
 
     init {
         try {
-            FileInputStream("./config.properties").use { input ->
+            FileInputStream("./extensions/config.properties").use { input ->
                 val prop = Properties()
                 prop.load(input)
                 this.uri = prop.getProperty("uri")
@@ -30,14 +30,15 @@ class Redis {
         this.client = Redisson.create(config)
     }
 
-    fun pushInstanceInfo(instance: GameInstance) {
+    fun pushInstanceInfo(instance: GameInstance, shuttingDown: Boolean) {
         this.client.getTopic("server-info").publish(
             ServerInfo(
                 instance.id,
-                instance.gameType,
+                instance.gameType.toString(),
                 instance.maxPlayers,
                 instance.instanceContainer.players.size,
-                instance.maxPlayers - instance.instanceContainer.players.size)
+                instance.maxPlayers - instance.instanceContainer.players.size,
+                shuttingDown)
         )
     }
 }

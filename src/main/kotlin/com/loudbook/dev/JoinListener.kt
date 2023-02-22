@@ -4,6 +4,7 @@ import com.loudbook.dev.api.PlayerSendInfo
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.coordinate.Pos
+import net.minestom.server.entity.PlayerSkin
 import net.minestom.server.event.EventListener
 import net.minestom.server.event.player.PlayerLoginEvent
 import java.util.*
@@ -24,6 +25,9 @@ class JoinListener(private val redis: Redis, private val playerManager: PlayerMa
             return EventListener.Result.EXCEPTION
         }
 
+        val skin = PlayerSkin.fromUsername(event.player.username)
+        event.player.skin = skin
+
         val gamePlayer = this.playerManager.addPlayer(player)
 
         gamePlayer.gameInstance = this.gameInstanceManager.getInstance(playerSendInfo.targetInstanceID)
@@ -34,10 +38,10 @@ class JoinListener(private val redis: Redis, private val playerManager: PlayerMa
             if (playerManager.partyByID(playerSendInfo.party.id) == null) {
                 this.playerManager.parties.add(playerSendInfo.party)
                 gamePlayer.party = playerSendInfo.party
-                playerSendInfo.party.addMember(gamePlayer)
+                playerSendInfo.party.addMember(player)
             } else {
                 gamePlayer.party = playerManager.partyByID(playerSendInfo.party.id)
-                gamePlayer.party!!.addMember(gamePlayer)
+                gamePlayer.party!!.addMember(player)
             }
         }
 
@@ -52,7 +56,7 @@ class JoinListener(private val redis: Redis, private val playerManager: PlayerMa
 
         gameInstance.players.add(gamePlayer)
 
-        redis.pushInstanceInfo(gameInstance)
+        redis.pushInstanceInfo(gameInstance, false)
 
         if (gameInstance.players.size >= gameInstance.requiredPlayers && !gameInstance.countdown.isRunning) {
             gameInstance.countdown.run()

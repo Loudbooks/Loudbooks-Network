@@ -5,6 +5,7 @@ import dev.hypera.scaffolding.Scaffolding
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.minestom.server.coordinate.Pos
+import net.minestom.server.entity.Player
 import net.minestom.server.instance.InstanceContainer
 import java.io.File
 import java.util.*
@@ -42,7 +43,7 @@ class GameInstance(val instanceContainer: InstanceContainer,
 
             schematic.build(this.instanceContainer, Pos(0.0, 0.0, 0.0)).thenRun {
                 println("Loaded map ${map!!.mapPath} for game type ${gameType.name.lowercase()}")
-                redis.pushInstanceInfo(this)
+                redis.pushInstanceInfo(this, false)
             }
         }
         thread.start()
@@ -66,7 +67,7 @@ class GameInstance(val instanceContainer: InstanceContainer,
 
         val map = Map(
             path.path,
-            path.path.replace("./extensions/schematics/$type/", "").replace(".schem", ""),
+            path.path.replace("./extensions/schematics/$type/", "").replace(".schematic", ""),
             this)
 
         this.map = map
@@ -76,7 +77,7 @@ class GameInstance(val instanceContainer: InstanceContainer,
     fun startGame() {
         var index = 0
         var currentTeam = this.teams[index]
-        val players = mutableListOf<GamePlayer>()
+        val players = mutableListOf<Player>()
         for (party in playerManager.parties) {
             for (player in party.getMembers()) {
                 if (players.contains(player)) continue
@@ -86,17 +87,18 @@ class GameInstance(val instanceContainer: InstanceContainer,
 
         for (player in this.players) {
             if (!player.isInParty()) {
-                players.add(player)
+                players.add(player.player)
             }
         }
 
         for (player in players) {
+            val gamePlayer = playerManager.getGamePlayer(player)
             if (!currentTeam.isFull()) {
-                currentTeam.addPlayer(player)
+                currentTeam.addPlayer(gamePlayer!!)
             } else {
                 index++
                 currentTeam = this.teams[index]
-                currentTeam.addPlayer(player)
+                currentTeam.addPlayer(gamePlayer!!)
             }
         }
 
@@ -107,9 +109,11 @@ class GameInstance(val instanceContainer: InstanceContainer,
 
     fun removePlayer(player: GamePlayer) {
         this.players.remove(player)
+
         for (team in this.teams) {
             team.removePlayer(player)
         }
+
         for (player1 in this.players) {
             player1.player.sendMessage(
                 Component.textOfChildren(
@@ -120,6 +124,7 @@ class GameInstance(val instanceContainer: InstanceContainer,
                 )
             )
         }
+
         this.playerManager.removePlayer(player)
     }
 }
