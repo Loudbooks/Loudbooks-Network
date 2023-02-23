@@ -4,4 +4,4 @@ import com.loudbook.dev.Party
 import net.minestom.server.entity.Player
 import java.util.*
 
-data class PlayerSendInfo(val player: Player, val targetInstanceID: UUID, val party: Party? = null)
+data class PlayerSendInfo(val targetInstanceID: UUID = UUID.randomUUID(), val party: Party? = null)

@@ -1,6 +1,5 @@
 package com.loudbook.dev
 
-import com.loudbook.dev.api.GameInstance
 import net.minestom.server.MinecraftServer
 import net.minestom.server.instance.Instance
 import net.minestom.server.instance.block.Block
@@ -10,14 +9,14 @@ import net.minestom.server.world.DimensionType
 import java.util.*
 
 class GameInstanceManager(private val gameType: GameType, private val playerManager: PlayerManager, private val redis: Redis) {
-    private val gameInstances: MutableList<GameInstance> = ArrayList()
+    val gameInstances: MutableList<GameInstance> = ArrayList()
     private val gameInstanceMap: MutableMap<Instance, GameInstance> = HashMap()
     private var fullbright: DimensionType = DimensionType.builder(NamespaceID.from("minestom:full_bright"))
         .ambientLight(2.0f)
         .build()
 
     init {
-        MinecraftServer.getDimensionTypeManager().addDimension(fullbright);
+        MinecraftServer.getDimensionTypeManager().addDimension(fullbright)
     }
 
     fun getInstance(instance: Instance): GameInstance? {

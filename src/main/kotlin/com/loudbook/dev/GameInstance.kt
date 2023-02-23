@@ -1,6 +1,8 @@
-package com.loudbook.dev.api
+package com.loudbook.dev
 
-import com.loudbook.dev.*
+import com.loudbook.dev.api.Map
+import com.loudbook.dev.api.Team
+import com.loudbook.dev.api.TeamColor
 import dev.hypera.scaffolding.Scaffolding
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -25,9 +27,16 @@ class GameInstance(val instanceContainer: InstanceContainer,
     val countdown: Countdown = Countdown(this)
 
     init {
+        println("Creating game instance $id")
         val thread = Thread {
-            if (map == null) {
+            if (this.map == null) {
                 this.map = getRandomMap()
+                println("Chose map ${map!!.mapPath} for game type ${gameType.name.lowercase()}")
+            }
+
+            if (this.map!!.spawnPoints.isEmpty()) {
+                println("Could not find spawn points!")
+                return@Thread
             }
 
             val schematic = Scaffolding.fromFile(File(map!!.mapPath))
@@ -36,16 +45,12 @@ class GameInstance(val instanceContainer: InstanceContainer,
                 return@Thread
             }
 
-            for (i in 1..maxPlayers/teamSize) {
-                val team = Team(TeamColor.values()[i-1], this.teamSize, map!!.spawnPoints.values.toList()[i-1])
-                this.teams.add(team)
-            }
-
             schematic.build(this.instanceContainer, Pos(0.0, 0.0, 0.0)).thenRun {
                 println("Loaded map ${map!!.mapPath} for game type ${gameType.name.lowercase()}")
                 redis.pushInstanceInfo(this, false)
             }
         }
+        println("Starting thread for game instance $id")
         thread.start()
     }
 

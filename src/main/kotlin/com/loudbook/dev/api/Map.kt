@@ -2,7 +2,7 @@ package com.loudbook.dev.api
 
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
-import net.minestom.server.coordinate.Point
+import com.loudbook.dev.GameInstance
 import net.minestom.server.coordinate.Pos
 import java.io.FileNotFoundException
 import java.io.FileReader
@@ -15,7 +15,6 @@ class Map(val mapPath: String, mapName: String, gameInstance: GameInstance) {
     private var numberOfTeams: Int = 8
 
     init {
-
         val parsed: JsonElement? = try {
             JsonParser.parseReader(FileReader("./extensions/config/$mapName.json"))
         } catch (e: FileNotFoundException) {
@@ -31,12 +30,11 @@ class Map(val mapPath: String, mapName: String, gameInstance: GameInstance) {
 
             val split = stringPos.split(",")
             val spawnPos = Pos(split[0].toDouble(), split[1].toDouble(), split[2].toDouble())
-            for (team in gameInstance.teams) {
-                if (team.color == value) {
-                    team.spawnPoint = spawnPos
-                    spawnPoints[team] = spawnPos
-                }
-            }
+            val team = Team(value, playerPerTeam, spawnPos)
+            team.spawnPoint = spawnPos
+            gameInstance.teams.add(team)
+            spawnPoints[team] = spawnPos
+
         }
 
         this.playerPerTeam = parsedObject.get("playersPerTeam").asInt

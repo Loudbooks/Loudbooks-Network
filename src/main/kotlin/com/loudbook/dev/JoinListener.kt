@@ -16,6 +16,8 @@ class JoinListener(private val redis: Redis, private val playerManager: PlayerMa
     }
 
     override fun run(event: PlayerLoginEvent): EventListener.Result {
+
+
         val player = event.player
         val map = this.redis.client.getMap<UUID, PlayerSendInfo>("player-send-info")
         val playerSendInfo = map[player.uuid]
@@ -30,9 +32,11 @@ class JoinListener(private val redis: Redis, private val playerManager: PlayerMa
 
         val gamePlayer = this.playerManager.addPlayer(player)
 
-        gamePlayer.gameInstance = this.gameInstanceManager.getInstance(playerSendInfo.targetInstanceID)
-        event.setSpawningInstance(gamePlayer.gameInstance!!.instanceContainer)
-        gamePlayer.player.teleport(Pos(0.0, 100.0, 0.0))
+        val gameInstance = this.gameInstanceManager.getInstance(playerSendInfo.targetInstanceID)
+
+        gamePlayer.gameInstance = gameInstance
+        event.setSpawningInstance(gameInstance!!.instanceContainer)
+        event.player.respawnPoint = (Pos(0.0, 100.0, 0.0))
 
         if (playerSendInfo.party != null) {
             if (playerManager.partyByID(playerSendInfo.party.id) == null) {
@@ -43,13 +47,6 @@ class JoinListener(private val redis: Redis, private val playerManager: PlayerMa
                 gamePlayer.party = playerManager.partyByID(playerSendInfo.party.id)
                 gamePlayer.party!!.addMember(player)
             }
-        }
-
-        val gameInstance = this.gameInstanceManager.getInstance(playerSendInfo.targetInstanceID)
-
-        if (gameInstance == null) {
-            player.kick(Component.text("Could not find your game instance!").color(NamedTextColor.RED))
-            return EventListener.Result.EXCEPTION
         }
 
         gamePlayer.hideFromServer()

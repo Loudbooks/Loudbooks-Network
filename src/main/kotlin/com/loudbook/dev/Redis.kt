@@ -1,6 +1,5 @@
 package com.loudbook.dev
 
-import com.loudbook.dev.api.GameInstance
 import com.loudbook.dev.api.ServerInfo
 import org.redisson.Redisson
 import org.redisson.api.RedissonClient
@@ -9,7 +8,7 @@ import java.io.FileInputStream
 import java.io.IOException
 import java.util.*
 
-class Redis {
+class Redis() {
     val client: RedissonClient
     private var uri: String? = null
 
@@ -40,5 +39,11 @@ class Redis {
                 instance.maxPlayers - instance.instanceContainer.players.size,
                 shuttingDown)
         )
+    }
+
+    fun pushServerInfo(gameInstanceManager: GameInstanceManager) {
+        for (gameInstance in gameInstanceManager.gameInstances) {
+            pushInstanceInfo(gameInstance, false)
+        }
     }
 }

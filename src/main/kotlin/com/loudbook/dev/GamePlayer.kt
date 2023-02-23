@@ -1,10 +1,7 @@
 package com.loudbook.dev
 
-import com.loudbook.dev.api.GameInstance
 import com.loudbook.dev.api.Team
 import net.kyori.adventure.text.Component
-import net.minestom.server.MinecraftServer
-import net.minestom.server.crypto.ChatSession
 import net.minestom.server.entity.GameMode
 import net.minestom.server.entity.Player
 import net.minestom.server.network.packet.server.play.PlayerInfoRemovePacket
